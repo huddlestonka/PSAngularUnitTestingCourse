@@ -46,4 +46,53 @@ describe('HeroesComponent (deep tests)', () => {
       expect(heroComponentDEs[i].componentInstance.hero).toEqual(HEROES[i]);
     }
   });
+
+  it(`should call heroService.deleteHero when the Hero Component's delete button is clicked`, () => {
+    spyOn(fixture.componentInstance, 'delete');
+    mockHeroService.getHeroes.and.returnValue(of(HEROES));
+
+    fixture.detectChanges();
+
+    const heroComponentDEs = fixture.debugElement.queryAll(
+      By.directive(HeroComponent)
+    );
+    //heroComponentDEs[0]
+    //  .query(By.css('button'))
+    //  .triggerEventHandler('click', { stopPropagation: () => {} });
+    //
+    // or... alternate way to raise event in child component...
+    (<HeroComponent>heroComponentDEs[0].componentInstance).delete.emit(
+      undefined
+    );
+    // yet another way...
+    // heroComponentDEs[0].triggerEventHandler('delete', null);
+
+    expect(fixture.componentInstance.delete).toHaveBeenCalledWith(HEROES[0]);
+  });
+
+  it('should add a new hero to the hero list when the add button is clicked', () => {
+    mockHeroService.getHeroes.and.returnValue(of(HEROES));
+
+    fixture.detectChanges();
+    const name = 'Mr. Ice';
+    // nope...
+    //fixture.componentInstance.add(name);
+    //fixture.detectChanges();
+    //expect(fixture.componentInstance.heroes.length).toBe(4);
+    //
+    // this instead...
+    mockHeroService.addHero.and.returnValue(
+      of({ id: 5, name: name, strength: 4 })
+    );
+    const inputEl = fixture.debugElement.query(By.css('input')).nativeElement;
+    const addButton = fixture.debugElement.queryAll(By.css('button'))[0];
+
+    inputEl.value = name;
+    addButton.triggerEventHandler('click', null);
+    fixture.detectChanges();
+
+    const heroText = fixture.debugElement.query(By.css('ul')).nativeElement
+      .textContent;
+    expect(heroText).toContain(name);
+  });
 });
