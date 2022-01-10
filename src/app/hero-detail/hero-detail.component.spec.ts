@@ -1,5 +1,11 @@
 import { Location } from '@angular/common';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {
+  ComponentFixture,
+  fakeAsync,
+  flush,
+  TestBed,
+  tick,
+} from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
@@ -46,4 +52,15 @@ describe('HeroDetailComponent', () => {
       'SUPERDUDE'
     );
   });
+
+  it('should call updateHero when save is called', fakeAsync(() => {
+    mockHeroService.updateHero.and.returnValue(of({}));
+    fixture.detectChanges();
+
+    fixture.componentInstance.save();
+    //tick(250);
+    flush();
+
+    expect(mockHeroService.updateHero).toHaveBeenCalled();
+  }));
 });
